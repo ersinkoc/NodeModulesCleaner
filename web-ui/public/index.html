@@ -1,63 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NodeModulesCleaner</title>
-  <link rel="stylesheet" href="/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NodeModulesCleaner - Manage Your Node Modules</title>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <div id="app">
-    <header>
-      <h1>NodeModulesCleaner</h1>
-      <p>Zero-dependency tool for managing node_modules</p>
-    </header>
-    
-    <nav>
-      <button class="nav-btn active" data-tab="scan">Scan</button>
-      <button class="nav-btn" data-tab="analyze">Analyze</button>
-      <button class="nav-btn" data-tab="clean">Clean</button>
-    </nav>
-    
-    <main>
-      <div id="scan-tab" class="tab-content active">
-        <h2>Scan for node_modules</h2>
-        <div class="controls">
-          <input type="text" id="scan-path" placeholder="Enter path to scan" value=".">
-          <button id="scan-btn">Start Scan</button>
-        </div>
-        <div id="scan-results"></div>
-      </div>
-      
-      <div id="analyze-tab" class="tab-content">
-        <h2>Analyze node_modules</h2>
-        <div class="controls">
-          <input type="text" id="analyze-path" placeholder="Enter path to analyze" value=".">
-          <button id="analyze-btn">Analyze</button>
-        </div>
-        <div id="analyze-results"></div>
-      </div>
-      
-      <div id="clean-tab" class="tab-content">
-        <h2>Clean node_modules</h2>
-        <div id="clean-list"></div>
-        <div class="controls">
-          <label>
-            <input type="checkbox" id="dry-run"> Dry Run
-          </label>
-          <label>
-            <input type="checkbox" id="backup"> Create Backup
-          </label>
-          <button id="clean-btn" disabled>Clean Selected</button>
-        </div>
-      </div>
-    </main>
-    
-    <footer>
-      <div id="status"></div>
-    </footer>
-  </div>
-  
-  <script src="/app.js"></script>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="3" width="7" height="7" rx="1" fill="currentColor" opacity="0.8"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1" fill="currentColor" opacity="0.6"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1" fill="currentColor" opacity="0.6"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1" fill="currentColor" opacity="0.4"/>
+                    </svg>
+                    <h1>NodeModulesCleaner</h1>
+                </div>
+                <div class="stats" id="globalStats">
+                    <div class="stat">
+                        <span class="stat-value" id="totalSize">0 MB</span>
+                        <span class="stat-label">Total Size</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="totalProjects">0</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="totalPackages">0</span>
+                        <span class="stat-label">Packages</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Controls -->
+            <section class="controls">
+                <div class="control-group">
+                    <input type="text" id="scanPath" class="input" placeholder="Enter path to scan (e.g., C:\Projects or .)" value=".">
+                    <button id="scanBtn" class="btn btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Scan Directory
+                    </button>
+                    <button id="analyzeBtn" class="btn btn-secondary" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 12h4l3-9l4 18l3-9h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Analyze
+                    </button>
+                    <button id="cleanBtn" class="btn btn-danger" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Clean Selected
+                    </button>
+                </div>
+                <div class="control-options">
+                    <label class="checkbox">
+                        <input type="checkbox" id="selectAll">
+                        <span>Select All</span>
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="dryRun" checked>
+                        <span>Dry Run</span>
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="backup">
+                        <span>Create Backup</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Loading State -->
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p id="loadingText">Scanning directories...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error" class="error-message hidden">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span id="errorText"></span>
+                <button class="close-btn" onclick="hideError()">×</button>
+            </div>
+
+            <!-- Success Message -->
+            <div id="success" class="success-message hidden">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span id="successText"></span>
+                <button class="close-btn" onclick="hideSuccess()">×</button>
+            </div>
+
+            <!-- Results Section -->
+            <section id="results" class="results hidden">
+                <!-- Results Table -->
+                <div class="table-container">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th width="40">
+                                    <input type="checkbox" id="selectAllTable">
+                                </th>
+                                <th>Project</th>
+                                <th>Size</th>
+                                <th>Packages</th>
+                                <th>Last Modified</th>
+                                <th>Path</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody">
+                            <!-- Results will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state hidden">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" opacity="0.3">
+                        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M9 9h6M9 12h6M9 15h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <p>No node_modules directories found</p>
+                    <p class="text-muted">Try scanning a different directory</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>NodeModulesCleaner v1.0.0 - Zero Dependencies</p>
+                <p class="text-muted">
+                    <span id="connectionStatus" class="connection-status">
+                        <span class="status-indicator"></span>
+                        Connected
+                    </span>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/app.js"></script>
 </body>
 </html>
