@@ -1,0 +1,41 @@
+# Source files
+src/
+web-ui/src/
+
+# Development files
+scripts/
+tests/
+*.test.ts
+*.test.js
+tsconfig.json
+tsconfig.*.json
+.gitignore
+.eslintrc*
+.prettierrc*
+
+# Documentation source
+docs/
+
+# Binaries
+binaries/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Logs
+*.log
+
+# Local config
+.nmcrc.local
+.env*

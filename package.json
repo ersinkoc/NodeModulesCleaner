@@ -1,0 +1,41 @@
+{
+  "name": "@oxog/nmc",
+  "version": "1.0.0",
+  "description": "Zero-dependency Node.js tool for finding, analyzing, and cleaning node_modules directories",
+  "main": "dist/index.js",
+  "bin": {
+    "nmc": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:web": "node scripts/build-web.js",
+    "dev": "tsx src/cli/index.ts",
+    "dev:web": "node scripts/dev-server.js",
+    "test": "node scripts/test-runner.js",
+    "package": "node scripts/package.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "node_modules",
+    "cleaner",
+    "disk-space",
+    "zero-dependency",
+    "cli",
+    "typescript"
+  ],
+  "author": "Ersin Koc",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ersinkoc/NodeModulesCleaner"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.5",
+    "tsx": "^4.7.0"
+  }
+}

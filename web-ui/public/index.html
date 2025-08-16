@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NodeModulesCleaner</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>NodeModulesCleaner</h1>
+      <p>Zero-dependency tool for managing node_modules</p>
+    </header>
+    
+    <nav>
+      <button class="nav-btn active" data-tab="scan">Scan</button>
+      <button class="nav-btn" data-tab="analyze">Analyze</button>
+      <button class="nav-btn" data-tab="clean">Clean</button>
+    </nav>
+    
+    <main>
+      <div id="scan-tab" class="tab-content active">
+        <h2>Scan for node_modules</h2>
+        <div class="controls">
+          <input type="text" id="scan-path" placeholder="Enter path to scan" value=".">
+          <button id="scan-btn">Start Scan</button>
+        </div>
+        <div id="scan-results"></div>
+      </div>
+      
+      <div id="analyze-tab" class="tab-content">
+        <h2>Analyze node_modules</h2>
+        <div class="controls">
+          <input type="text" id="analyze-path" placeholder="Enter path to analyze" value=".">
+          <button id="analyze-btn">Analyze</button>
+        </div>
+        <div id="analyze-results"></div>
+      </div>
+      
+      <div id="clean-tab" class="tab-content">
+        <h2>Clean node_modules</h2>
+        <div id="clean-list"></div>
+        <div class="controls">
+          <label>
+            <input type="checkbox" id="dry-run"> Dry Run
+          </label>
+          <label>
+            <input type="checkbox" id="backup"> Create Backup
+          </label>
+          <button id="clean-btn" disabled>Clean Selected</button>
+        </div>
+      </div>
+    </main>
+    
+    <footer>
+      <div id="status"></div>
+    </footer>
+  </div>
+  
+  <script src="/app.js"></script>
+</body>
+</html>

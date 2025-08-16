@@ -1,0 +1,28 @@
+{
+  "scanOptions": {
+    "maxDepth": 10,
+    "excludePaths": [
+      "**/vendor/**",
+      "**/cache/**",
+      "**/tmp/**",
+      "**/.git/**"
+    ],
+    "includeHidden": false,
+    "parallel": true
+  },
+  "analyzeOptions": {
+    "findDuplicates": true,
+    "sizeThreshold": 52428800,
+    "ageThreshold": 30
+  },
+  "cleanOptions": {
+    "backup": true,
+    "dryRun": false,
+    "interactive": true
+  },
+  "webOptions": {
+    "port": 3001,
+    "host": "localhost",
+    "open": true
+  }
+}
