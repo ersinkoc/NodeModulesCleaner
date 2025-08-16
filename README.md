@@ -1,286 +1,262 @@
-# NodeModulesCleaner
+# @oxog/nmc - Node Modules Cleaner
 
 ![Version](https://img.shields.io/npm/v/@oxog/nmc)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Dependencies](https://img.shields.io/badge/dependencies-0-green.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen.svg)
 
-A **ZERO DEPENDENCY** Node.js/TypeScript tool for finding, analyzing, and cleaning `node_modules` directories across your projects. Built entirely from scratch using only native Node.js APIs.
+A **zero-dependency**, cross-platform CLI tool for finding, analyzing, and cleaning `node_modules` directories across your projects. Save disk space and keep your development environment tidy!
 
 ## Features
 
-- **Zero Dependencies** - Everything built from scratch using native Node.js APIs
-- **Fast Scanning** - Parallel processing for quick directory traversal
-- **Smart Analysis** - Find duplicates, calculate statistics, suggest cleanup targets
-- **Safe Cleaning** - Dry run mode, backup options, validation checks
-- **Web Interface** - Beautiful vanilla JavaScript UI with real-time updates
+- **Zero Dependencies** - Built entirely with Node.js native APIs
 - **Cross-Platform** - Works on Windows, macOS, and Linux
-- **Custom CLI** - Beautiful colored output with spinners and tables
-- **TypeScript** - Fully typed for better development experience
+- **Fast Scanning** - Parallel scanning with customizable depth
+- **Smart Analysis** - Find duplicates, analyze package sizes, get cleanup suggestions
+- **Safe Cleaning** - Dry-run mode, backup options, interactive selection
+- **Web Interface** - Browser-based UI for visual management
+- **CLI First** - Powerful command-line interface with intuitive commands
 
 ## Installation
 
-### Via NPM (Global)
 ```bash
+# Global installation (recommended)
 npm install -g @oxog/nmc
+
+# Or use npx directly
+npx @oxog/nmc scan
 ```
 
-### Via NPM (Local)
+## Quick Start
+
 ```bash
-npm install --save-dev @oxog/nmc
-```
-
-### From Source
-```bash
-git clone https://github.com/ersinkoc/NodeModulesCleaner.git
-cd NodeModulesCleaner
-npm install
-npm run build
-npm link
-```
-
-## Usage
-
-### CLI Commands
-
-#### Scan for node_modules
-```bash
-# Scan current directory
+# Scan current directory for node_modules
 nmc scan
 
 # Scan specific directory
-nmc scan /path/to/projects
+nmc scan ~/projects
 
-# Scan with options
-nmc scan --depth 5 --hidden --sort size
-```
+# Analyze and find duplicates
+nmc analyze ~/projects
 
-#### Analyze with duplicate detection
-```bash
-# Basic analysis
-nmc analyze
-
-# Filter by size and age
-nmc analyze --size-threshold 100 --age-threshold 30
-
-# Save report to file
-nmc analyze --report analysis.txt
-```
-
-#### Clean node_modules
-```bash
-# Interactive selection
-nmc clean --interactive
-
-# Clean all found
-nmc clean --all
+# Clean with interactive mode
+nmc clean ~/projects --interactive
 
 # Dry run to see what would be deleted
-nmc clean --dry-run
-
-# Clean with backup
-nmc clean --backup
-
-# Clean by age (older than 30 days)
-nmc clean --age 30
-
-# Clean by size (larger than 100MB)
-nmc clean --size 100
-
-# Clean duplicates only
-nmc clean --duplicates
+nmc clean ~/projects --dry-run
 ```
 
-#### Web Interface
+## Commands
+
+### `scan [path]`
+Find all node_modules directories in the specified path.
+
 ```bash
-# Launch web UI on default port 3001
-nmc web
-
-# Custom port
-nmc web --port 8080
-
-# Don't open browser
-nmc web --no-open
+nmc scan ~/projects --depth 5 --sort size
 ```
+
+Options:
+- `--depth <number>` - Maximum directory depth (default: 10)
+- `--sort <field>` - Sort by: size, date, name, packages (default: size)
+- `--limit <number>` - Limit results
+- `--min-size <MB>` - Minimum size threshold
+- `--exclude <patterns>` - Exclude paths (comma-separated glob patterns)
+
+### `analyze [path]`
+Analyze node_modules for duplicates and statistics.
+
+```bash
+nmc analyze ~/projects --find-duplicates
+```
+
+Options:
+- `--find-duplicates` - Find duplicate packages
+- `--min-size <MB>` - Minimum size threshold
+- `--max-age <days>` - Maximum age in days
+
+### `clean [paths...]`
+Clean specified node_modules directories.
+
+```bash
+nmc clean ./project1 ./project2 --backup
+```
+
+Options:
+- `--dry-run` - Preview what would be deleted
+- `--backup` - Create backup before deletion
+- `--force` - Skip confirmation prompts
+- `--interactive` - Interactive selection mode
+
+### `web [path]`
+Launch web interface for visual management.
+
+```bash
+nmc web --port 3001 --open
+```
+
+Options:
+- `--port <number>` - Server port (default: 3001)
+- `--host <string>` - Server host (default: localhost)
+- `--open` - Open browser automatically
+- `--no-open` - Don't open browser
 
 ## Web Interface
 
 The web interface provides:
-- Real-time scanning with progress updates
-- Interactive file browser
-- Visual charts and statistics
-- Drag-and-drop selection for cleaning
-- Server-Sent Events for live updates
-- Dark/light theme support
+- Visual directory tree navigation
+- Real-time scanning progress
+- Interactive selection for batch operations
+- Statistics dashboard
+- Export results to JSON/CSV
 
-Access at `http://localhost:3001` after running `nmc web`
-
-## API Usage
-
-```typescript
-import { scanner, analyzer, cleaner } from '@oxog/nmc';
-
-// Scan for node_modules
-const results = await scanner.scan('/path/to/projects', {
-  maxDepth: 10,
-  includeHidden: false,
-  parallel: true
-});
-
-// Analyze results
-const analysis = await analyzer.analyze(results, {
-  findDuplicates: true,
-  sizeThreshold: 50 * 1024 * 1024, // 50MB
-  ageThreshold: 30 // days
-});
-
-// Clean selected directories
-const cleanResult = await cleaner.clean(targets, {
-  dryRun: false,
-  backup: true
-});
-```
+Access at `http://localhost:3001` after running `nmc web`.
 
 ## Configuration
 
-Create a `.nmcrc` file in your project root:
+Create a `.nmcrc` file in your home directory or project root:
 
 ```json
 {
-  "scanOptions": {
-    "maxDepth": 10,
-    "excludePaths": ["**/vendor/**", "**/cache/**"],
-    "includeHidden": false
-  },
-  "cleanOptions": {
-    "backup": true,
-    "dryRun": false
-  },
-  "webOptions": {
-    "port": 3001,
-    "open": true
-  }
+  "defaultDepth": 10,
+  "excludePaths": ["**/vendor/**", "**/venv/**"],
+  "backupLocation": "~/.nmc-backups",
+  "defaultSort": "size",
+  "minSize": 50,
+  "interactive": true
 }
 ```
 
-## How It Works
+## Use Cases
 
-### Zero Dependencies Philosophy
+### 1. Regular Maintenance
+Clean up old projects periodically:
+```bash
+# Find node_modules older than 30 days
+nmc analyze ~/projects --max-age 30
 
-Every feature is implemented from scratch:
-
-- **CLI Framework** - Custom argument parser, ANSI colors, spinners, tables
-- **File System** - Native fs/promises with custom glob matching
-- **HTTP Server** - Native http module with custom routing
-- **Frontend** - Vanilla JavaScript, no frameworks
-- **Build System** - Custom bundler and packager
-
-### Architecture
-
+# Clean them with backup
+nmc clean ~/projects --max-age 30 --backup
 ```
-Core Modules:
-- Scanner: Finds all node_modules directories
-- Analyzer: Generates statistics and finds duplicates  
-- Cleaner: Safely removes selected directories
-- SizeCalculator: Efficiently calculates directory sizes
 
-CLI Modules:
-- ArgParser: Parses command-line arguments
-- Colors: ANSI color formatting
-- Spinner: Loading animations
-- Prompt: Interactive user input
-- Table: ASCII table formatting
+### 2. Free Up Space Quickly
+When running low on disk space:
+```bash
+# Find largest node_modules
+nmc scan ~ --sort size --limit 10
 
-Web Modules:
-- Router: HTTP request routing
-- SSEManager: Server-Sent Events
-- WebServer: Native HTTP server
+# Clean the largest ones
+nmc clean ~/large-project --dry-run
+nmc clean ~/large-project
+```
+
+### 3. CI/CD Pipeline
+Keep CI environments clean:
+```bash
+# Clean all node_modules in workspace
+nmc clean $WORKSPACE --force --no-backup
+```
+
+### 4. Project Migration
+Before backing up or moving projects:
+```bash
+# Analyze all projects
+nmc analyze ~/projects > analysis.json
+
+# Clean selectively
+nmc clean ~/projects --interactive
 ```
 
 ## Performance
 
-- Parallel scanning using Promise.all()
-- Caching for repeated size calculations
-- Stream processing for large datasets
-- Efficient memory usage with iterators
-- Smart traversal avoiding symlink loops
+- Scans 1000+ projects in seconds
+- Handles nested node_modules efficiently
+- Low memory footprint
+- Parallel processing for faster operations
 
 ## Safety Features
 
-- Validates node_modules directories before deletion
-- Checks for .gitignore to avoid tracked files
-- Dry run mode to preview changes
-- Backup option before deletion
-- Force flag required for non-standard deletions
-- Interactive confirmation prompts
+- **Dry Run Mode** - Preview changes before execution
+- **Backup Option** - Create backups before deletion
+- **Interactive Mode** - Select specific directories
+- **Confirmation Prompts** - Prevent accidental deletions
+- **Detailed Logging** - Track all operations
 
-## Development
+## Comparison with Alternatives
 
-```bash
-# Install dev dependencies (only TypeScript)
-npm install
+| Feature | @oxog/nmc | npkill | node-prune |
+|---------|-----------|--------|------------|
+| Zero Dependencies | ✅ | ❌ | ❌ |
+| Web Interface | ✅ | ❌ | ❌ |
+| Duplicate Detection | ✅ | ❌ | ❌ |
+| Backup Support | ✅ | ❌ | ❌ |
+| Cross-Platform | ✅ | ✅ | ⚠️ |
+| Interactive Mode | ✅ | ✅ | ❌ |
 
-# Build TypeScript
-npm run build
+## API Usage
 
-# Development mode with watch
-npm run dev
+```javascript
+import { Scanner, Analyzer, Cleaner } from '@oxog/nmc';
 
-# Run tests
-npm run test
+// Scan for node_modules
+const scanner = new Scanner();
+const results = await scanner.scan('/path/to/projects');
 
-# Build web UI
-npm run build:web
+// Analyze results
+const analyzer = new Analyzer();
+const analysis = await analyzer.analyze(results);
 
-# Package as binaries
-npm run package
+// Clean selected directories
+const cleaner = new Cleaner();
+await cleaner.clean(analysis.suggestions, { dryRun: true });
 ```
 
 ## Contributing
 
-Contributions are welcome! Please ensure:
-- No external dependencies are added
-- All code is TypeScript
-- Tests are included
-- Code follows existing patterns
+Contributions are welcome! This project maintains zero production dependencies.
 
-## Benchmarks
+1. Fork the repository
+2. Create your feature branch
+3. Ensure tests pass
+4. Submit a pull request
 
-Tested on a system with 50+ projects:
+## Development
 
-- **Scanning**: ~2 seconds for 10,000 directories
-- **Analysis**: ~1 second for 100 node_modules
-- **Cleaning**: ~5 seconds for 10GB of data
-- **Memory**: < 50MB for large operations
-
-## Troubleshooting
-
-### Permission Errors
-Run with elevated permissions or use sudo on Unix systems.
-
-### Symbolic Links
-The scanner follows symlinks by default. Use `--no-follow` to skip them.
-
-### Large Directories
-For very large projects, increase Node's memory limit:
 ```bash
-node --max-old-space-size=4096 nmc scan
+# Clone repository
+git clone https://github.com/ersinkoc/NodeModulesCleaner.git
+cd NodeModulesCleaner
+
+# Install dev dependencies
+npm install
+
+# Run in development
+npm run dev
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
 ```
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) file
+MIT © Ersin Koc
 
-## Author
+## Support
 
-**Ersin Koc**
-- GitHub: [@ersinkoc](https://github.com/ersinkoc)
-- Repository: [NodeModulesCleaner](https://github.com/ersinkoc/NodeModulesCleaner)
+- Issues: [GitHub Issues](https://github.com/ersinkoc/NodeModulesCleaner/issues)
+- Discussions: [GitHub Discussions](https://github.com/ersinkoc/NodeModulesCleaner/discussions)
 
-## Acknowledgments
+## Changelog
 
-Built as a showcase of what's possible with zero dependencies - proving that Node.js native APIs are powerful enough for complex tools.
+### v1.0.0
+- Initial release
+- Zero-dependency implementation
+- Core scanning, analyzing, and cleaning features
+- Web interface
+- Cross-platform support
 
 ---
 
-**Remember**: This tool helps you reclaim disk space, but always ensure you can reinstall dependencies before cleaning!
+Made with ❤️ for developers who value disk space and clean codebases.
