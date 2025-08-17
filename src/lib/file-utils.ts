@@ -127,7 +127,11 @@ export class FileUtils {
     return await fs.readFile(filePath, encoding);
   }
 
-  async writeFile(filePath: string, content: string | Buffer): Promise<void> {
+  async writeFile(filePath: string, content: string | Buffer, options?: { createDirs?: boolean }): Promise<void> {
+    if (options?.createDirs) {
+      const dir = path.dirname(filePath);
+      await this.ensureDirectory(dir);
+    }
     await fs.writeFile(filePath, content);
   }
 
@@ -184,6 +188,108 @@ export class FileUtils {
     await walk(dirPath, 0);
   }
 
+  async deleteFile(filePath: string): Promise<void> {
+    try {
+      await fs.unlink(filePath);
+    } catch (error: any) {
+      if (error.code !== 'ENOENT') {
+        throw error;
+      }
+    }
+  }
+
+  async createDirectory(dirPath: string): Promise<void> {
+    await this.ensureDirectory(dirPath);
+  }
+
+  async deleteDirectory(dirPath: string): Promise<void> {
+    await this.removeDirectory(dirPath);
+  }
+
+  async copyFile(src: string, dest: string): Promise<void> {
+    await fs.copyFile(src, dest);
+  }
+
+  async moveFile(src: string, dest: string): Promise<void> {
+    try {
+      await fs.rename(src, dest);
+    } catch (error: any) {
+      if (error.code === 'EXDEV') {
+        await fs.copyFile(src, dest);
+        await fs.unlink(src);
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  async listDirectory(dirPath: string): Promise<string[]> {
+    return await this.readDirectory(dirPath);
+  }
+
+  async getFileStats(filePath: string): Promise<any> {
+    const stats = await this.getStats(filePath);
+    return stats;
+  }
+
+  async findFiles(dir: string, pattern: string): Promise<string[]> {
+    const results: string[] = [];
+    
+    const walk = async (currentDir: string): Promise<void> => {
+      const entries = await this.readDirectoryWithTypes(currentDir);
+      
+      for (const entry of entries) {
+        const fullPath = path.join(currentDir, entry.name);
+        
+        if (entry.isDirectory()) {
+          await walk(fullPath);
+        } else if (entry.isFile()) {
+          const relativePath = path.relative(dir, fullPath);
+          if (this.matchPattern(relativePath, pattern)) {
+            results.push(relativePath);
+          }
+        }
+      }
+    };
+    
+    await walk(dir);
+    return results;
+  }
+
+  private matchPattern(filePath: string, pattern: string): boolean {
+    // Normalize path separators
+    const normalizedPath = filePath.replace(/\\/g, '/');
+    const normalizedPattern = pattern.replace(/\\/g, '/');
+    
+    // Convert glob pattern to regex
+    const regexPattern = normalizedPattern
+      .replace(/\./g, '\\.')
+      .replace(/\*\*/g, '@@GLOBSTAR@@')
+      .replace(/\*/g, '[^/]*')
+      .replace(/@@GLOBSTAR@@/g, '.*')
+      .replace(/\?/g, '.');
+    
+    const regex = new RegExp(`^${regexPattern}$`);
+    return regex.test(normalizedPath);
+  }
+
+  async createTempFile(prefix: string, suffix: string): Promise<string> {
+    const tmpDir = await this.getTempDirectory();
+    const fileName = `${prefix}${Date.now()}${suffix}`;
+    const filePath = path.join(tmpDir, fileName);
+    await this.writeFile(filePath, '');
+    return filePath;
+  }
+
+  watchDirectory(dirPath: string, callback: (event: string, filename: string) => void): any {
+    const watcher = require('fs').watch(dirPath, (event: string, filename: string) => {
+      // Pass only the filename, not the full path
+      const name = filename || '';
+      callback(event, name);
+    });
+    return watcher;
+  }
+
   formatBytes(bytes: number, decimals: number = 2): string {
     if (bytes === 0) return '0 B';
     
@@ -204,6 +310,14 @@ export class FileUtils {
     const nmcTmpDir = path.join(tmpDir, 'nmc');
     await this.ensureDirectory(nmcTmpDir);
     return nmcTmpDir;
+  }
+  
+  getTempDirectorySync(): string {
+    const tmpDir = process.platform === 'win32' 
+      ? process.env.TEMP || process.env.TMP || 'C:\\Temp'
+      : '/tmp';
+    
+    return path.join(tmpDir, 'nmc');
   }
 }
 

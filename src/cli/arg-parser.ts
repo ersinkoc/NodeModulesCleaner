@@ -1,9 +1,11 @@
-import { ParsedArgs, CommandHandler, OptionConfig } from '../types/index.js';
+import { ParsedArgs, CommandHandler, OptionConfig } from '../types/index';
 
 export class ArgParser {
   private commands = new Map<string, CommandHandler>();
   private globalOptions = new Map<string, OptionConfig>();
   private aliases = new Map<string, string>();
+  private versionString: string = '';
+  private descriptionString: string = '';
 
   addCommand(name: string, handler: CommandHandler): void {
     this.commands.set(name, handler);
@@ -16,6 +18,110 @@ export class ArgParser {
     }
   }
 
+  option(flags: string, description: string, defaultValue?: string): this {
+    const parts = flags.split(/[, ]+/);
+    const shortFlag = parts.find(p => p.startsWith('-') && !p.startsWith('--'));
+    const longFlag = parts.find(p => p.startsWith('--'));
+    
+    const hasValue = flags.includes('<') || flags.includes('[');
+    let name = longFlag ? longFlag.replace('--', '').replace(/\s*<.*>|\s*\[.*\]/, '') : shortFlag?.replace('-', '') || '';
+    const alias = shortFlag ? shortFlag.replace('-', '') : undefined;
+    
+    // Extract the placeholder (e.g., "<path>" from "--output <path>")
+    let placeholder = '';
+    const placeholderMatch = flags.match(/<[^>]+>|\[[^\]]+\]/);
+    if (placeholderMatch) {
+      placeholder = ' ' + placeholderMatch[0];
+    }
+    
+    // Store the original option name (including 'no-' prefix if present)
+    this.addGlobalOption({
+      name,
+      alias,
+      description,
+      type: hasValue ? 'string' : 'boolean',
+      default: defaultValue,
+      flags: flags // Store original flags for help text
+    } as any);
+    
+    return this;
+  }
+
+  command(cmd: string, description: string, handler: (args: any, options?: any) => void): this {
+    const parts = cmd.split(' ');
+    const commandName = parts[0];
+    const cmdArgs = parts.slice(1);
+    
+    this.addCommand(commandName, {
+      name: cmd, // Store full command string for help text
+      description,
+      execute: async (parsedArgs: ParsedArgs) => {
+        // Extract command arguments from parsed args
+        const commandArgs = parsedArgs.args.slice(0, cmdArgs.length);
+        handler(commandArgs, parsedArgs.options);
+      },
+      options: []
+    });
+    
+    return this;
+  }
+
+  version(v: string): this {
+    this.versionString = v;
+    // Add version as a global option
+    this.addGlobalOption({
+      name: 'version',
+      alias: 'V',
+      description: 'Show version number',
+      type: 'boolean'
+    });
+    return this;
+  }
+
+  description(desc: string): this {
+    this.descriptionString = desc;
+    return this;
+  }
+
+  help(): string {
+    const lines: string[] = [];
+    
+    if (this.descriptionString) {
+      lines.push(this.descriptionString);
+      lines.push('');
+    }
+    
+    if (this.versionString) {
+      lines.push(`Version: ${this.versionString}`);
+      lines.push('');
+    }
+    
+    if (this.globalOptions.size > 0) {
+      lines.push('Options:');
+      for (const [name, option] of this.globalOptions) {
+        // Use original flags if available, otherwise reconstruct
+        let flags;
+        if ((option as any).flags) {
+          flags = (option as any).flags;
+        } else {
+          flags = option.alias ? `-${option.alias}, --${name}` : `--${name}`;
+        }
+        lines.push(`  ${flags.padEnd(25)} ${option.description || ''}`);
+      }
+      lines.push('');
+    }
+    
+    if (this.commands.size > 0) {
+      lines.push('Commands:');
+      for (const [key, cmd] of this.commands) {
+        // Use cmd.name which has the full command string (e.g., "test <file>")
+        lines.push(`  ${cmd.name.padEnd(25)} ${cmd.description || ''}`);
+      }
+    }
+    
+    return lines.join('\n');
+  }
+
   parse(args: string[]): ParsedArgs {
     const result: ParsedArgs = {
       command: '',
@@ -26,9 +132,21 @@ export class ArgParser {
 
     let i = 0;
     
-    if (args.length > 0 && !args[0].startsWith('-')) {
-      result.command = args[0];
-      i = 1;
+    // Skip 'node' and 'script' arguments if present
+    if (args.length >= 2 && (args[0] === 'node' || args[0].endsWith('node') || args[0].endsWith('node.exe'))) {
+      i = 2; // Skip node and script name
+    }
+    
+    // Check if the first non-skipped arg looks like a command (check if it's registered)
+    let possibleCommand = '';
+    if (i < args.length && !args[i].startsWith('-')) {
+      possibleCommand = args[i];
+      
+      // Only treat it as a command if it's registered
+      if (this.commands.has(possibleCommand)) {
+        result.command = possibleCommand;
+        i++;
+      }
     }
 
     const command = this.commands.get(result.command);
@@ -47,8 +165,25 @@ export class ArgParser {
       }
     }
 
+    let stopParsing = false;
+    let collectingCommandArgs = !!result.command;
+    
     while (i < args.length) {
       const arg = args[i];
+      
+      // Handle double dash separator
+      if (arg === '--') {
+        stopParsing = true;
+        i++;
+        continue;
+      }
+      
+      // After --, treat everything as arguments
+      if (stopParsing) {
+        result.args.push(arg);
+        i++;
+        continue;
+      }
       
       if (arg.startsWith('--')) {
         const key = arg.slice(2);
@@ -60,28 +195,50 @@ export class ArgParser {
           const option = availableOptions.get(optionName);
           
           if (option) {
-            result.options[optionName] = this.parseValue(value, option.type);
+            const camelKey = this.toCamelCase(optionName);
+            result.options[camelKey] = this.parseValue(value, option.type);
           } else {
-            result.options[optionName] = value;
+            const camelKey = this.toCamelCase(optionName);
+            result.options[camelKey] = value;
           }
         } else {
-          const option = availableOptions.get(key);
+          // Handle negated options like --no-color
+          let optionKey = key;
+          let setValue = true;
           
-          if (option && option.type === 'boolean') {
-            result.flags.add(key);
-            result.options[key] = true;
-          } else if (i + 1 < args.length && !args[i + 1].startsWith('-')) {
-            i++;
-            const value = args[i];
+          if (key.startsWith('no-')) {
+            const positiveKey = key.slice(3);
+            const negatedOption = availableOptions.get(key);
             
-            if (option) {
-              result.options[key] = this.parseValue(value, option.type);
-            } else {
-              result.options[key] = value;
+            if (negatedOption) {
+              // Option was registered as --no-xxx
+              result.flags.add(positiveKey);
+              result.options[positiveKey] = false;
+              i++;
+              continue;
             }
+          }
+          
+          const option = availableOptions.get(optionKey);
+          
+          if (!option) {
+            // Unknown option - treat as argument
+            result.args.push(arg);
           } else {
-            result.flags.add(key);
-            result.options[key] = true;
+            const camelKey = this.toCamelCase(optionKey);
+            
+            if (option.type === 'boolean') {
+              result.flags.add(camelKey);
+              result.options[camelKey] = setValue;
+            } else if (i + 1 < args.length && !args[i + 1].startsWith('-')) {
+              i++;
+              const value = args[i];
+              result.options[camelKey] = this.parseValue(value, option.type);
+            } else {
+              // Missing value for option, treat as boolean
+              result.flags.add(camelKey);
+              result.options[camelKey] = true;
+            }
           }
         }
       } else if (arg.startsWith('-')) {
@@ -103,6 +260,7 @@ export class ArgParser {
           }
         }
       } else {
+        // Non-option argument
         result.args.push(arg);
       }
       
@@ -115,6 +273,11 @@ export class ArgParser {
       }
     }
 
+    // Execute command if found
+    if (command && command.execute) {
+      command.execute(result);
+    }
+    
     return result;
   }
 
@@ -128,6 +291,10 @@ export class ArgParser {
       default:
         return value;
     }
+  }
+  
+  private toCamelCase(str: string): string {
+    return str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
   }
 
   getCommand(name: string): CommandHandler | undefined {

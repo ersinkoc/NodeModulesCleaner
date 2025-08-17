@@ -1,6 +1,6 @@
-import { CommandHandler, ParsedArgs } from '../../types/index.js';
-import { webServer } from '../../web/server.js';
-import { colors } from '../colors.js';
+import { CommandHandler, ParsedArgs } from '../../types/index';
+import { webServer } from '../../web/server';
+import { colors } from '../colors';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 

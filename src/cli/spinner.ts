@@ -1,4 +1,4 @@
-import { colors } from './colors.js';
+import { colors } from './colors';
 
 export class Spinner {
   private frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
@@ -7,23 +7,40 @@ export class Spinner {
   private text = '';
   private stream = process.stderr;
   private isEnabled = process.stderr.isTTY && !process.env.CI;
+  
+  // Allow override for testing
+  setEnabled(enabled: boolean): void {
+    this.isEnabled = enabled;
+  }
+
+  constructor(text?: string) {
+    if (text) {
+      this.text = text;
+    }
+  }
 
   start(text: string = ''): void {
-    if (!this.isEnabled) {
-      console.error(text);
-      return;
+    if (text) {
+      this.text = text;
     }
-
-    this.text = text;
     this.currentFrame = 0;
     
-    if (this.interval) {
-      this.stop();
+    if (!this.isEnabled) {
+      const output = `${colors.cyan(this.frames[0])} ${this.text}`;
+      process.stdout.write(output);
+      return;
     }
+    
+    if (this.interval) {
+      return; // Already running, don't restart
+    }
+    
+    // Render immediately
+    this.render();
 
     this.interval = setInterval(() => {
-      this.render();
       this.currentFrame = (this.currentFrame + 1) % this.frames.length;
+      this.render();
     }, 80);
   }
 
@@ -31,9 +48,11 @@ export class Spinner {
     const frame = this.frames[this.currentFrame];
     const output = `${colors.cyan(frame)} ${this.text}`;
     
-    this.stream.clearLine(0);
-    this.stream.cursorTo(0);
-    this.stream.write(output);
+    if (this.stream && this.stream.clearLine) {
+      this.stream.clearLine(0);
+      this.stream.cursorTo(0);
+    }
+    process.stdout.write(output);
   }
 
   update(text: string): void {
@@ -41,56 +60,68 @@ export class Spinner {
     if (this.isEnabled && this.interval) {
       this.render();
     } else if (!this.isEnabled) {
-      console.error(text);
+      console.log(text);
     }
+  }
+
+  success(text?: string): void {
+    this.succeed(text);
+  }
+
+  error(text?: string): void {
+    this.fail(text);
   }
 
   succeed(text?: string): void {
     this.stop();
     const finalText = text || this.text;
+    const output = `${colors.success('✓')} ${finalText}\n`;
     if (this.isEnabled) {
-      this.stream.clearLine(0);
-      this.stream.cursorTo(0);
-      this.stream.write(colors.success(finalText) + '\n');
-    } else {
-      console.error(colors.success(finalText));
+      if (this.stream && this.stream.clearLine) {
+        this.stream.clearLine(0);
+        this.stream.cursorTo(0);
+      }
     }
+    process.stdout.write(output);
   }
 
   fail(text?: string): void {
     this.stop();
     const finalText = text || this.text;
+    const output = `${colors.error('✗')} ${finalText}\n`;
     if (this.isEnabled) {
-      this.stream.clearLine(0);
-      this.stream.cursorTo(0);
-      this.stream.write(colors.error(finalText) + '\n');
-    } else {
-      console.error(colors.error(finalText));
+      if (this.stream && this.stream.clearLine) {
+        this.stream.clearLine(0);
+        this.stream.cursorTo(0);
+      }
     }
+    process.stdout.write(output);
   }
 
   warn(text?: string): void {
     this.stop();
     const finalText = text || this.text;
+    const output = `${colors.warning('⚠')} ${finalText}\n`;
     if (this.isEnabled) {
-      this.stream.clearLine(0);
-      this.stream.cursorTo(0);
-      this.stream.write(colors.warning(finalText) + '\n');
-    } else {
-      console.error(colors.warning(finalText));
+      if (this.stream && this.stream.clearLine) {
+        this.stream.clearLine(0);
+        this.stream.cursorTo(0);
+      }
     }
+    process.stdout.write(output);
   }
 
   info(text?: string): void {
     this.stop();
     const finalText = text || this.text;
+    const output = `${colors.info('ℹ')} ${finalText}\n`;
     if (this.isEnabled) {
-      this.stream.clearLine(0);
-      this.stream.cursorTo(0);
-      this.stream.write(colors.info(finalText) + '\n');
-    } else {
-      console.error(colors.info(finalText));
+      if (this.stream && this.stream.clearLine) {
+        this.stream.clearLine(0);
+        this.stream.cursorTo(0);
+      }
     }
+    process.stdout.write(output);
   }
 
   stop(): void {
@@ -99,8 +130,8 @@ export class Spinner {
       this.interval = null;
       
       if (this.isEnabled) {
-        this.stream.clearLine(0);
-        this.stream.cursorTo(0);
+        // Clear the line
+        process.stdout.write('\r\x1b[K');
       }
     }
   }

@@ -1,9 +1,9 @@
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import { NodeModulesInfo, ScanOptions, PackageInfo } from '../types/index.js';
-import { fileUtils } from '../lib/file-utils.js';
-import { sizeCalculator } from './size-calculator.js';
-import { glob } from '../lib/glob.js';
+import { NodeModulesInfo, ScanOptions, PackageInfo } from '../types/index';
+import { fileUtils } from '../lib/file-utils';
+import { sizeCalculator } from './size-calculator';
+import { glob } from '../lib/glob';
 
 export class Scanner {
   async scan(rootPath: string, options?: ScanOptions): Promise<NodeModulesInfo[]> {
@@ -39,7 +39,7 @@ export class Scanner {
       
       if (options.excludePaths) {
         for (const pattern of options.excludePaths) {
-          if (glob.match(pattern, dirPath)) {
+          if (glob.isMatch(dirPath, pattern)) {
             return true;
           }
         }

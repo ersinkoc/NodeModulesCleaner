@@ -1,11 +1,11 @@
 import * as path from 'path';
-import { CommandHandler, ParsedArgs } from '../../types/index.js';
-import { scanner } from '../../core/scanner.js';
-import { analyzer } from '../../core/analyzer.js';
-import { colors } from '../colors.js';
-import { spinner } from '../spinner.js';
-import { createTable } from '../table.js';
-import { fileUtils } from '../../lib/file-utils.js';
+import { CommandHandler, ParsedArgs } from '../../types/index';
+import { scanner } from '../../core/scanner';
+import { analyzer } from '../../core/analyzer';
+import { colors } from '../colors';
+import { spinner } from '../spinner';
+import { createTable } from '../table';
+import { fileUtils } from '../../lib/file-utils';
 
 export const analyzeCommand: CommandHandler = {
   name: 'analyze',

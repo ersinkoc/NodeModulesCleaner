@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-import { argParser } from './arg-parser.js';
-import { colors } from './colors.js';
-import { scanCommand } from './commands/scan.js';
-import { analyzeCommand } from './commands/analyze.js';
-import { cleanCommand } from './commands/clean.js';
-import { webCommand } from './commands/web.js';
+import { argParser } from './arg-parser';
+import { colors } from './colors';
+import { scanCommand } from './commands/scan';
+import { analyzeCommand } from './commands/analyze';
+import { cleanCommand } from './commands/clean';
+import { webCommand } from './commands/web';
 
 async function main() {
   argParser.addGlobalOption({

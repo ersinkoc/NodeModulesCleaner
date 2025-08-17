@@ -1,5 +1,5 @@
 import { ServerResponse } from 'http';
-import { SSEClient } from '../types/index.js';
+import { SSEClient } from '../types/index';
 
 export class SSEManager {
   private clients = new Map<string, SSEClient>();

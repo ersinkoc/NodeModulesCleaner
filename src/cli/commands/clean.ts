@@ -1,12 +1,12 @@
 import * as path from 'path';
-import { CommandHandler, ParsedArgs } from '../../types/index.js';
-import { scanner } from '../../core/scanner.js';
-import { cleaner } from '../../core/cleaner.js';
-import { analyzer } from '../../core/analyzer.js';
-import { colors } from '../colors.js';
-import { spinner } from '../spinner.js';
-import { prompt } from '../prompt.js';
-import { fileUtils } from '../../lib/file-utils.js';
+import { CommandHandler, ParsedArgs } from '../../types/index';
+import { scanner } from '../../core/scanner';
+import { cleaner } from '../../core/cleaner';
+import { analyzer } from '../../core/analyzer';
+import { colors } from '../colors';
+import { spinner } from '../spinner';
+import { prompt } from '../prompt';
+import { fileUtils } from '../../lib/file-utils';
 
 export const cleanCommand: CommandHandler = {
   name: 'clean',

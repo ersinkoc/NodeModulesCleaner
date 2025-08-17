@@ -1,8 +1,8 @@
 import * as http from 'http';
 import * as path from 'path';
-import { Router } from './router.js';
-import { SSEManager } from './sse.js';
-import { RouteHandler } from '../types/index.js';
+import { Router } from './router';
+import { SSEManager } from './sse';
+import { RouteHandler } from '../types/index';
 
 export class WebServer {
   private server: http.Server | null = null;

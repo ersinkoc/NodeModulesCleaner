@@ -1,5 +1,5 @@
 import * as readline from 'readline';
-import { colors } from './colors.js';
+import { colors } from './colors';
 
 export class Prompt {
   private rl: readline.Interface | null = null;
@@ -32,6 +32,10 @@ export class Prompt {
     });
   }
 
+  async text(question: string): Promise<string> {
+    return this.ask(question);
+  }
+
   async confirm(question: string, defaultValue: boolean = false): Promise<boolean> {
     const defaultText = defaultValue ? '(Y/n)' : '(y/N)';
     const answer = await this.ask(`${question} ${colors.gray(defaultText)}`);
@@ -44,6 +48,10 @@ export class Prompt {
   }
 
   async select(question: string, choices: string[]): Promise<string> {
+    if (!choices || choices.length === 0) {
+      throw new Error('No choices provided');
+    }
+    
     const rl = this.createInterface();
     
     console.log(colors.cyan('? ') + question);
@@ -71,6 +79,10 @@ export class Prompt {
   }
 
   async multiSelect(question: string, choices: string[]): Promise<string[]> {
+    if (!choices || choices.length === 0) {
+      throw new Error('No choices provided');
+    }
+    
     const rl = this.createInterface();
     
     console.log(colors.cyan('? ') + question);

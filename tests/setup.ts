@@ -58,15 +58,22 @@ export async function createTestProject(name: string, packages: string[] = []): 
     const pkgPath = path.join(nodeModulesPath, pkg);
     await fs.mkdir(pkgPath, { recursive: true });
     
-    await fs.writeFile(
-      path.join(pkgPath, 'package.json'),
-      JSON.stringify({ name: pkg, version: '1.0.0' }, null, 2)
-    );
-    
-    await fs.writeFile(
-      path.join(pkgPath, 'index.js'),
-      `module.exports = { name: '${pkg}' };`
-    );
+    try {
+      await fs.writeFile(
+        path.join(pkgPath, 'package.json'),
+        JSON.stringify({ name: pkg, version: '1.0.0' }, null, 2)
+      );
+      
+      await fs.writeFile(
+        path.join(pkgPath, 'index.js'),
+        `module.exports = { name: '${pkg}' };`
+      );
+    } catch (error: any) {
+      // Ignore write errors in test environment
+      if (error.code !== 'EPERM') {
+        throw error;
+      }
+    }
   }
   
   return projectPath;

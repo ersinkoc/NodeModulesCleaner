@@ -2,7 +2,11 @@ export class Colors {
   private static readonly RESET = '\x1b[0m';
   private static readonly BOLD = '\x1b[1m';
   private static readonly DIM = '\x1b[2m';
+  private static readonly ITALIC = '\x1b[3m';
   private static readonly UNDERLINE = '\x1b[4m';
+  private static readonly INVERSE = '\x1b[7m';
+  private static readonly HIDDEN = '\x1b[8m';
+  private static readonly STRIKETHROUGH = '\x1b[9m';
   
   private static readonly BLACK = '\x1b[30m';
   private static readonly RED = '\x1b[31m';
@@ -76,6 +80,26 @@ export class Colors {
 
   underline(text: string): string {
     return this.colorize(text, Colors.UNDERLINE);
+  }
+
+  italic(text: string): string {
+    return this.colorize(text, Colors.ITALIC);
+  }
+
+  inverse(text: string): string {
+    return this.colorize(text, Colors.INVERSE);
+  }
+
+  hidden(text: string): string {
+    return this.colorize(text, Colors.HIDDEN);
+  }
+
+  strikethrough(text: string): string {
+    return this.colorize(text, Colors.STRIKETHROUGH);
+  }
+
+  reset(text: string): string {
+    return this.colorize(text, Colors.RESET);
   }
 
   bgRed(text: string): string {

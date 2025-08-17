@@ -43,6 +43,7 @@ describe('Spinner', () => {
   describe('start', () => {
     it('should start spinning', () => {
       spinner = new Spinner('Testing');
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       
       expect(writeOutput.length).toBeGreaterThan(0);
@@ -51,6 +52,7 @@ describe('Spinner', () => {
 
     it('should update frames on interval', () => {
       spinner = new Spinner('Loading');
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       
       const initialOutput = writeOutput.length;
@@ -62,6 +64,7 @@ describe('Spinner', () => {
 
     it('should cycle through frames', () => {
       spinner = new Spinner('Processing');
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       
       const frames: string[] = [];
@@ -80,6 +83,7 @@ describe('Spinner', () => {
 
     it('should not start if already running', () => {
       spinner = new Spinner();
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       
       const initialLength = writeOutput.length;
@@ -94,6 +98,7 @@ describe('Spinner', () => {
         (!process.env.NO_COLOR && process.env.TERM !== 'dumb');
       
       spinner = new Spinner('Colored');
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       
       if (isColorSupported) {
@@ -105,6 +110,7 @@ describe('Spinner', () => {
   describe('stop', () => {
     it('should stop spinning', () => {
       spinner = new Spinner('Stopping');
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       
       jest.advanceTimersByTime(160);
@@ -118,6 +124,7 @@ describe('Spinner', () => {
 
     it('should clear the line when stopping', () => {
       spinner = new Spinner('Clear');
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       spinner.stop();
       
@@ -133,6 +140,7 @@ describe('Spinner', () => {
 
     it('should handle multiple stops', () => {
       spinner = new Spinner();
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       spinner.stop();
       
@@ -143,6 +151,7 @@ describe('Spinner', () => {
   describe('success', () => {
     it('should show success message', () => {
       spinner = new Spinner('Task');
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       spinner.success('Complete!');
       
@@ -156,6 +165,7 @@ describe('Spinner', () => {
         (!process.env.NO_COLOR && process.env.TERM !== 'dumb');
       
       spinner = new Spinner();
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.success('Done');
       
       const output = writeOutput.join('');
@@ -167,6 +177,7 @@ describe('Spinner', () => {
 
     it('should stop spinner before showing success', () => {
       spinner = new Spinner();
+      (spinner as any).setEnabled(true);  // Enable for testing
       const stopSpy = jest.spyOn(spinner, 'stop');
       
       spinner.start();
@@ -179,6 +190,7 @@ describe('Spinner', () => {
   describe('error', () => {
     it('should show error message', () => {
       spinner = new Spinner('Task');
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       spinner.error('Failed!');
       
@@ -192,6 +204,7 @@ describe('Spinner', () => {
         (!process.env.NO_COLOR && process.env.TERM !== 'dumb');
       
       spinner = new Spinner();
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.error('Error');
       
       const output = writeOutput.join('');
@@ -203,6 +216,7 @@ describe('Spinner', () => {
 
     it('should stop spinner before showing error', () => {
       spinner = new Spinner();
+      (spinner as any).setEnabled(true);  // Enable for testing
       const stopSpy = jest.spyOn(spinner, 'stop');
       
       spinner.start();
@@ -215,6 +229,7 @@ describe('Spinner', () => {
   describe('info', () => {
     it('should show info message', () => {
       spinner = new Spinner();
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.info('Information');
       
       const output = writeOutput.join('');
@@ -227,6 +242,7 @@ describe('Spinner', () => {
         (!process.env.NO_COLOR && process.env.TERM !== 'dumb');
       
       spinner = new Spinner();
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.info('Info');
       
       const output = writeOutput.join('');
@@ -238,6 +254,7 @@ describe('Spinner', () => {
 
     it('should stop spinner before showing info', () => {
       spinner = new Spinner();
+      (spinner as any).setEnabled(true);  // Enable for testing
       const stopSpy = jest.spyOn(spinner, 'stop');
       
       spinner.start();
@@ -250,6 +267,7 @@ describe('Spinner', () => {
   describe('warn', () => {
     it('should show warning message', () => {
       spinner = new Spinner();
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.warn('Warning!');
       
       const output = writeOutput.join('');
@@ -262,6 +280,7 @@ describe('Spinner', () => {
         (!process.env.NO_COLOR && process.env.TERM !== 'dumb');
       
       spinner = new Spinner();
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.warn('Caution');
       
       const output = writeOutput.join('');
@@ -273,6 +292,7 @@ describe('Spinner', () => {
 
     it('should stop spinner before showing warning', () => {
       spinner = new Spinner();
+      (spinner as any).setEnabled(true);  // Enable for testing
       const stopSpy = jest.spyOn(spinner, 'stop');
       
       spinner.start();
@@ -285,6 +305,7 @@ describe('Spinner', () => {
   describe('update', () => {
     it('should update spinner text', () => {
       spinner = new Spinner('Initial');
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       
       spinner.update('Updated');
@@ -297,6 +318,7 @@ describe('Spinner', () => {
 
     it('should continue spinning with new text', () => {
       spinner = new Spinner('First');
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       
       jest.advanceTimersByTime(80);
@@ -313,6 +335,7 @@ describe('Spinner', () => {
   describe('frames', () => {
     it('should use default frames', () => {
       spinner = new Spinner();
+      (spinner as any).setEnabled(true);  // Enable for testing
       const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
       
       spinner.start();
@@ -350,6 +373,7 @@ describe('Spinner', () => {
       });
       
       spinner = new Spinner('Non-TTY');
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       
       // Should still output something
@@ -360,6 +384,7 @@ describe('Spinner', () => {
   describe('long running spinner', () => {
     it('should handle long running operations', () => {
       spinner = new Spinner('Long task');
+      (spinner as any).setEnabled(true);  // Enable for testing
       spinner.start();
       
       // Simulate long running task
@@ -375,6 +400,7 @@ describe('Spinner', () => {
 
     it('should cycle through all frames repeatedly', () => {
       spinner = new Spinner('Cycling');
+      (spinner as any).setEnabled(true);  // Enable for testing
       const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
       
       spinner.start();

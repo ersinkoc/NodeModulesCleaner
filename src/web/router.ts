@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { RouteHandler } from '../types/index.js';
+import { RouteHandler } from '../types/index';
 
 interface Route {
   method: string;

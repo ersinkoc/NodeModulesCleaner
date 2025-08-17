@@ -4,7 +4,7 @@ import {
   DuplicateReport, 
   Statistics,
   AnalyzeOptions 
-} from '../types/index.js';
+} from '../types/index';
 
 export class Analyzer {
   async analyze(results: NodeModulesInfo[], options?: AnalyzeOptions): Promise<{
@@ -155,7 +155,7 @@ export class Analyzer {
       
       const score = this.calculateCleanupScore(nodeModules, daysSinceModified);
       
-      if (score > 50) {
+      if (score >= 40) {
         targets.push(nodeModules);
       }
     }
