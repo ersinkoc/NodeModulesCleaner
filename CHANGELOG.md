@@ -78,7 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **0.9.0** - Beta release
 - **0.5.0** - Alpha release
 
-[Unreleased]: https://github.com/yourusername/NodeModulesCleaner/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/yourusername/NodeModulesCleaner/releases/tag/v1.0.0
-[0.9.0]: https://github.com/yourusername/NodeModulesCleaner/releases/tag/v0.9.0
-[0.5.0]: https://github.com/yourusername/NodeModulesCleaner/releases/tag/v0.5.0
+[Unreleased]: https://github.com/ersinkoc/NodeModulesCleaner/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/ersinkoc/NodeModulesCleaner/releases/tag/v1.0.0
+[0.9.0]: https://github.com/ersinkoc/NodeModulesCleaner/releases/tag/v0.9.0
+[0.5.0]: https://github.com/ersinkoc/NodeModulesCleaner/releases/tag/v0.5.0

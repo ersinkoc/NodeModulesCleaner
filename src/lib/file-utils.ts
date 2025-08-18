@@ -1,6 +1,7 @@
 import * as fs from 'fs/promises';
+import * as fsSync from 'fs';
 import * as path from 'path';
-import { constants, Stats, Dirent } from 'fs';
+import { constants, Stats, Dirent, FSWatcher } from 'fs';
 
 export class FileUtils {
   async exists(filePath: string): Promise<boolean> {
@@ -281,12 +282,18 @@ export class FileUtils {
     return filePath;
   }
 
-  watchDirectory(dirPath: string, callback: (event: string, filename: string) => void): any {
-    const watcher = require('fs').watch(dirPath, (event: string, filename: string) => {
+  watchDirectory(dirPath: string, callback: (event: string, filename: string) => void): FSWatcher {
+    const watcher = fsSync.watch(dirPath, (event: string, filename: string | null) => {
       // Pass only the filename, not the full path
       const name = filename || '';
       callback(event, name);
     });
+    
+    // Add error handling
+    watcher.on('error', (error: Error) => {
+      console.error(`Watch error for ${dirPath}:`, error);
+    });
+    
     return watcher;
   }
 

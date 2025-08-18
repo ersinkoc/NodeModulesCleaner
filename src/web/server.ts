@@ -91,7 +91,7 @@ export class WebServer {
   }
 
   private async handleScan(req: any, res: any): Promise<void> {
-    const { scanner } = await import('../core/scanner.js');
+    const { scanner } = await import('../core/scanner');
     const targetPath = req.query.path || process.cwd();
     
     try {
@@ -112,8 +112,8 @@ export class WebServer {
   }
 
   private async handleAnalyze(req: any, res: any): Promise<void> {
-    const { scanner } = await import('../core/scanner.js');
-    const { analyzer } = await import('../core/analyzer.js');
+    const { scanner } = await import('../core/scanner');
+    const { analyzer } = await import('../core/analyzer');
     
     const targetPath = req.body.path || process.cwd();
     
@@ -143,7 +143,7 @@ export class WebServer {
   }
 
   private async handleClean(req: any, res: any): Promise<void> {
-    const { cleaner } = await import('../core/cleaner.js');
+    const { cleaner } = await import('../core/cleaner');
     
     const targets = req.body.targets || [];
     const options = {
@@ -167,7 +167,7 @@ export class WebServer {
   }
 
   private async handleProjects(req: any, res: any): Promise<void> {
-    const { scanner } = await import('../core/scanner.js');
+    const { scanner } = await import('../core/scanner');
     const targetPath = req.query.path || process.cwd();
     
     try {

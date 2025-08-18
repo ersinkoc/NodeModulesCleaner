@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { execSync } from 'child_process';
 import { NodeModulesInfo, CleanOptions } from '../types/index';
 import { fileUtils } from '../lib/file-utils';
 import { colors } from '../cli/colors';
@@ -181,7 +182,7 @@ export class Cleaner {
     failed: string[];
     savedSpace: number;
   }> {
-    const { scanner } = await import('./scanner.js');
+    const { scanner } = await import('./scanner');
     const results = await scanner.scan(rootPath);
     
     const cutoffDate = new Date();
@@ -203,7 +204,7 @@ export class Cleaner {
     failed: string[];
     savedSpace: number;
   }> {
-    const { scanner } = await import('./scanner.js');
+    const { scanner } = await import('./scanner');
     const results = await scanner.scan(rootPath);
     
     const sizeThreshold = sizeThresholdMB * 1024 * 1024;
@@ -222,8 +223,8 @@ export class Cleaner {
     failed: string[];
     savedSpace: number;
   }> {
-    const { scanner } = await import('./scanner.js');
-    const { analyzer } = await import('./analyzer.js');
+    const { scanner } = await import('./scanner');
+    const { analyzer } = await import('./analyzer');
     
     const results = await scanner.scan(rootPath);
     const duplicates = await analyzer.analyzeDuplicates(results);
@@ -356,7 +357,6 @@ export class Cleaner {
   
   async cleanNpmCache(): Promise<{ success: boolean; message: string; sizeFreed?: number }> {
     try {
-      const { execSync } = await import('child_process');
       execSync('npm cache clean --force', { stdio: 'pipe' });
       return { success: true, message: 'NPM cache cleaned successfully', sizeFreed: 0 };
     } catch (error) {
@@ -366,7 +366,6 @@ export class Cleaner {
   
   async cleanYarnCache(): Promise<{ success: boolean; message: string; sizeFreed?: number }> {
     try {
-      const { execSync } = await import('child_process');
       execSync('yarn cache clean', { stdio: 'pipe' });
       return { success: true, message: 'Yarn cache cleaned successfully', sizeFreed: 0 };
     } catch (error) {
