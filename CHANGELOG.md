@@ -7,14 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2025-08-18
+
+### Fixed
+- **Module Import Resolution**: Fixed dynamic import issues with `.js` extensions causing module resolution failures
+- **File Watcher Resource Leak**: Improved `watchDirectory` function with proper error handling and type safety
+- **Cache Cleaning Race Conditions**: Fixed timing issues in NPM/Yarn cache cleaning operations by using static imports
+- **TypeScript Type Safety**: Enhanced type annotations and fixed FSWatcher return type
+
 ### Added
-- Interactive mode for selective cleaning
-- Progress indicators with colored output
-- Backup functionality before deletion
-- Dry-run mode for safe preview
-- Multiple scanning strategies (by age, size, duplicates)
-- Comprehensive analytics and reporting
-- Cross-platform support (Windows, macOS, Linux)
+- Comprehensive test coverage for file watching functionality
+- ESLint configuration for better code quality and consistency
+- Proper error handling in file watcher operations
+
+### Changed
+- Improved import consistency across the codebase
+- Enhanced error messages for file operations
+- Better module resolution reliability
 
 ## [1.0.0] - 2025-08-17
 
@@ -74,11 +83,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
+- **1.0.1** - Bug fixes and stability improvements
 - **1.0.0** - Production release
 - **0.9.0** - Beta release
 - **0.5.0** - Alpha release
 
-[Unreleased]: https://github.com/ersinkoc/NodeModulesCleaner/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/ersinkoc/NodeModulesCleaner/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/ersinkoc/NodeModulesCleaner/releases/tag/v1.0.1
 [1.0.0]: https://github.com/ersinkoc/NodeModulesCleaner/releases/tag/v1.0.0
 [0.9.0]: https://github.com/ersinkoc/NodeModulesCleaner/releases/tag/v0.9.0
 [0.5.0]: https://github.com/ersinkoc/NodeModulesCleaner/releases/tag/v0.5.0
